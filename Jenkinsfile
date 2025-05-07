@@ -17,7 +17,10 @@ pipeline {
             steps {
                 echo "Building docker image..."
                 script {
-                      image = docker.build("${DOCKER_IMAGE_NAME}:${TAG}", "apps/helloapp")
+                      image = docker.build(
+                        "${DOCKER_IMAGE_NAME}:${TAG}",
+                        "-f ${DOCKERFILE_PATH} ."
+                      )
                 }
             }
         }
@@ -28,6 +31,31 @@ pipeline {
                     sh 'snyk auth $SNYK_TOKEN'
                     sh "snyk test --docker ${DOCKER_IMAGE_NAME}:${TAG} || true"
 
+                }
+            }
+        }
+        stage('Push to Docker Hub') {
+            steps {
+                echo "Pushing image to Docker Hub..."
+                withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh "docker push ${DOCKER_IMAGE_NAME}:${TAG}"
+                }
+            }
+        }
+
+        stage('Deploy to VM') {
+            steps {
+                echo "Deploying to remote VM..."
+                sshagent (credentials: ["${SSH_CREDENTIALS_ID}"]) {
+                    sh """
+                    ssh -o StrictHostKeyChecking=no ${VM_USER}@${VM_HOST} '
+                        docker pull ${DOCKER_IMAGE_NAME}:${TAG} &&
+                        docker stop helloapp || true &&
+                        docker rm helloapp || true &&
+                        docker run -d --name helloapp -p 6565:6565 ${DOCKER_IMAGE_NAME}:${TAG}
+                    '
+                    """
                 }
             }
         }
