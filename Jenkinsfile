@@ -8,7 +8,7 @@ pipeline {
         DOCKER_CREDENTIALS_ID = 'docker_credentials_id'
         SNYK_TOKEN = credentials('snyk-api-token')
         VM_USER = 'bright'
-        VM_HOST = '192.168.168.134'
+        VM_HOST = '192.168.168.129'
         VM_DEPLOY_DIR = '/home/bright'
         SSH_CREDENTIALS_ID = 'bright-ssh-creds-id'
     }
