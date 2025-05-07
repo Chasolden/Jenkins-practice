@@ -5,7 +5,7 @@ pipeline {
         TAG = "${BUILD_NUMBER}"
         DOCKERFILE_PATH = './Dockerfile'
         DOCKER_REGISTRY = 'docker.io'
-        DOCKER_CREDENTIALS_ID = '8b10758e-5915-4b7d-aabb-a0c662c6c5eb'
+        DOCKER_CREDENTIALS_ID = 'docker_credentials_id'
         SNYK_TOKEN = credentials('snyk-api-token')
         VM_USER = 'bright'
         VM_HOST = '192.168.168.134'
