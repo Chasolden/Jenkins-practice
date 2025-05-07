@@ -16,12 +16,11 @@ pipeline {
         stage('build stage') {
             steps {
                 echo "Building docker image..."
-                script {
-                      image = docker.build(
-                        "${DOCKER_IMAGE_NAME}:${TAG}",
-                        "-f ${DOCKERFILE_PATH} ."
-                      )
-                }
+                sh """
+                    docker build -f ${DOCKERFILE_PATH} \
+                    -t ${DOCKER_IMAGE_NAME}:${TAG} .
+                    docker images | grep ${DOCKER_IMAGE_NAME}
+                """
             }
         }
         stage('testing stage') {
