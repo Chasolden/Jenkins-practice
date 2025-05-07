@@ -46,8 +46,9 @@ pipeline {
         stage('Deploy to VM') {
             steps {
                 echo "Deploying to remote VM..."
-                sshagent (credentials: ["${SSH_CREDENTIALS_ID}"]) {
+                sshagent ([env.SSH_CREDENTIALS_ID]) {
                     sh """
+                    set -eux
                     ssh -o StrictHostKeyChecking=no ${VM_USER}@${VM_HOST} '
                         docker pull ${DOCKER_IMAGE_NAME}:${TAG} &&
                         docker stop helloapp || true &&
